@@ -2,9 +2,16 @@ import re
 import random
 from fractions import Fraction
 
+
 # Arithmetic 算数类
 class Arithmetic:
     def __init__(self, r):
+        try:
+            if not isinstance(r, int) or r < 0:
+                raise TypeError
+        except TypeError:
+            print("输入的参数范围值必须是自然数")
+            return
         self.result = -1
         while self.result < 0:
             self.formula = self.generate_arithmetic(r)
@@ -83,11 +90,15 @@ def write_exercises(formula):
 
 
 def read_exercises(path):
-    # 读取题目
-    with open(path, 'r') as f:
-        formula = f.readlines()
-    formula = [''.join(arithmetic.split(' ')[1:-1]) for arithmetic in formula]
-    return formula
+    try:
+        # 读取题目
+        with open(path, 'r') as f:
+            formula = f.readlines()
+        formula = [''.join(arithmetic.split(' ')[1:-1]) for arithmetic in formula]
+        return formula
+    except FileNotFoundError:
+        print("请输入正确的文件路径")
+        return FileNotFoundError
 
 
 def write_answer(answer):
@@ -102,16 +113,20 @@ def write_answer(answer):
 
 
 def read_answer(path):
-    # 读取答卷
-    with open(path, 'r') as f:
-        answer = f.readlines()
-    formula = [''.join(ans.split(' ')[1:])[:-1] for ans in answer]
+    try:
+        # 读取答卷
+        with open(path, 'r') as f:
+            answer = f.readlines()
+        formula = [''.join(ans.split(' ')[1:])[:-1] for ans in answer]
 
-    for idx in range(len(formula)):
-        if "\'" in formula[idx]:
-            splited_fml = formula[idx].split("\'")
-            formula[idx] = eval(re.sub(r'(\d+)', r'Fraction(\1)', f"{splited_fml[0]} + {splited_fml[1]}"))
-    return formula
+        for idx in range(len(formula)):
+            if "\'" in formula[idx]:
+                splited_fml = formula[idx].split("\'")
+                formula[idx] = eval(re.sub(r'(\d+)', r'Fraction(\1)', f"{splited_fml[0]} + {splited_fml[1]}"))
+        return formula
+    except FileNotFoundError:
+        print("请输入正确的文件路径")
+        return FileNotFoundError
 
 
 def write_grade(correct_info, wrong_info):
@@ -134,7 +149,7 @@ def exercises(n, r):
         # 将算式以及答案存入字典中
         arithmetic_dict[arithmetic.formula] = arithmetic.result
         print(arithmetic.formula)
-    # 讲题目和答案分别写入文件
+    # 将题目和答案分别写入文件
     write_exercises(arithmetic_dict.keys())
     write_answer(arithmetic_dict.values())
 
@@ -157,7 +172,7 @@ def correct_answer(e, a):
             correct_idx.append(idx + 1)
         else:
             wrong_idx.append(idx + 1)
-    # 生成错误和正确的信息
+    # 生成正确和错误的信息
     correct_info = f"Correct: {len(correct_idx)} ({''.join([f'{idx},' for idx in correct_idx])})"
     wrong_info = f"Wrong: {len(wrong_idx)} ({''.join([f'{idx},' for idx in wrong_idx])})"
 
